@@ -1,0 +1,302 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
+
+/* JOSH COMEAU CSS RESET. SOURCE: https://www.joshwcomeau.com/css/custom-css-reset/ */
+*,
+*::before,
+*::after {
+  box-sizing: content-box;
+}
+
+* {
+  margin: 0;
+}
+
+body {
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  border: none;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/* Utility Classes */
+
+.bold {
+  font-weight: 600;
+}
+
+#root,
+#__next {
+  isolation: isolate;
+}
+
+body {
+  font-family: "Inter";
+  height: 100vh;
+  padding-inline: 12rem;
+}
+
+header .alert {
+  padding: 0.5em 1em;
+  margin-left: -1em;
+  margin-block: 1em;
+  background-color: rgba(255, 0, 0, 0.2);
+  position: relative;
+}
+
+header .alert::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: rgba(255, 0, 0, 0.8);
+}
+
+main {
+  display: flex;
+}
+
+main .main-chart {
+  flex: 5 1 0;
+}
+
+.main-chart .main-header {
+  position: relative;
+}
+
+.main-chart .main-header button {
+  cursor: pointer;
+  font-weight: 600;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  background-color: black;
+  color: white;
+  padding: 0.5em 1em;
+  margin-top: 1em;
+  border-radius: 0.5em;
+}
+
+.main-chart .main-header {
+  margin-bottom: 1rem;
+}
+
+.main-chart .main-header .stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+}
+
+.main-chart img {
+  border: 1px solid black;
+}
+
+main .thumbnails {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+}
+
+.thumbnails li {
+  list-style: none;
+  position: relative;
+  cursor: pointer;
+}
+
+.thumbnails > :nth-child(1).selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: #1393e2;
+}
+
+.thumbnails > :nth-child(2).selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: #dd1464;
+}
+
+.thumbnails > :nth-child(3).selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: #fa7f03;
+}
+
+.thumbnails > :nth-child(4).selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: #16db93;
+}
+
+.thumbnails > :nth-child(5).selected::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  left: -3px;
+  background-color: #414073;
+}
+
+.thumbnails li .thumbnail-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: white;
+  opacity: 0.7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.thumbnail-overlay p {
+  font-size: 0.75rem;
+  font-weight: 600;
+  max-width: 50%;
+  text-align: center;
+}
+
+.overlay {
+  cursor: pointer;
+  display: none;
+  background-color: white;
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  transition: opacity 1s ease;
+}
+
+.update-settings {
+  position: absolute;
+  opacity: 0;
+  display: none;
+  z-index: 2;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid black;
+  border-radius: 0.5em;
+  padding: 2em 3.5em 1.5em 3.5em;
+}
+
+.visible-opaque {
+  display: block;
+  animation: fadeInOpaque 100ms ease-in-out forwards;
+}
+
+.visible {
+  display: block;
+  animation: fadeIn 100ms ease-in-out forwards;
+  animation-delay: 100ms;
+}
+
+@keyframes fadeInOpaque {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: .8;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.update-settings h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.update-settings .header .exit {
+  cursor: pointer;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translate(-100%, 50%);
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.update-settings form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+.update-settings form input {
+  border: 1px solid black;
+  border-radius: 0.25em;
+  width: 3em;
+}
+
+.update-settings form label {
+  font-weight: 600;
+  display: flex;
+  gap: 2em;
+  justify-content: space-between;
+}
+
+.update-settings form button {
+  cursor: pointer;
+  background-color: black;
+  color: white;
+  padding: 0.5em 1em;
+  margin-top: 1em;
+  border-radius: 0.5em;
+}
+
+footer {
+  font-weight: 600;
+  padding-top: 2em;
+  padding-bottom: 1em;
+}

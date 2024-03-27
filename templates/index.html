@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{{url_for('static', filename='style.css')}}" />
+    <title>System Monitor</title>
+  </head>
+  <body>
+    <div class="overlay" data-show="true"></div>
+    <div class="update-settings">
+      <div class="header">
+        <h2>Settings:</h2>
+        <button class="exit">x</button>
+      </div>
+
+      <form action="/update_config" method="POST">
+        <label for="max-cpu-usage"
+          >Max CPU Usage:
+          <input
+            name="max-cpu-usage"
+            type="number"
+            min="0"
+            max="100"
+            id="max-cpu-usage"
+            placeholder="80"
+        /></label>
+        <label for="max-ram-usage"
+          >Max RAM Usage:
+          <input
+            name="max-ram-usage"
+            type="number"
+            min="0"
+            max="100"
+            id="max-ram-usage"
+            placeholder="80"
+        /></label>
+        <label for="min-disk-space"
+          >Min Disk Space:
+          <input
+            name="min-disk-space"
+            type="number"
+            min="0"
+            max="150"
+            id="min-disk-space"
+            placeholder="10"
+        /></label>
+
+        <label for="max-processes"
+          >Max Process Count:
+          <input
+            name="max-processes"
+            type="number"
+            min="0"
+            max="500"
+            id="max-processes"
+            placeholder="300"
+        /></label>
+
+        <label for="max-users"
+          >Max Active Users Count:
+          <input
+            name="max-users"
+            type="number"
+            min="0"
+            max="100"
+            id="max-users"
+            placeholder="10"
+        /></label>
+
+        <label for="window-size"
+          >Charts Window Size:
+          <input
+            name="window-size"
+            type="number"
+            min="5"
+            max="30"
+            id="window-size"
+            placeholder="20"
+          />
+        </label>
+
+        <button type="submit">Update Settings</button>
+      </form>
+    </div>
+    <header>
+      <div class="alert">
+        <p>
+          <span class="bold">Derniere alerte CERT</span> <span></span>:
+          <a href="" target="_blank"></a>
+        </p>
+      </div>
+    </header>
+    <main>
+      <div class="main-chart">
+        <div class="main-header">
+          <h1>CPU Usage</h1>
+          <div class="stats">
+            <p><span class="bold period">Period: </span>%</p>
+            <p><span class="bold avg">Average: </span>%</p>
+            <p><span class="bold max">Max: </span>%</p>
+            <p><span class="bold min">Min: </span>%</p>
+          </div>
+          <button>Update Settings</button>
+        </div>
+
+        <img src="" alt="CPU Usage Chart" data-for="CPU" />
+      </div>
+      <ul class="thumbnails">
+        <li data-title="CPU" class="selected">
+          <div class="thumbnail-overlay"><p>CPU</p></div>
+          <img src="" alt="CPU Usage Chart" data-for="CPU" />
+        </li>
+        <li data-title="RAM">
+          <div class="thumbnail-overlay"><p>RAM</p></div>
+          <img src="" alt="RAM Usage Chart" data-for="RAM" />
+        </li>
+        <li data-title="Disk">
+          <div class="thumbnail-overlay"><p>Free Disk Space</p></div>
+          <img src="" alt="Free Disk Space Chart" data-for="Disk" />
+        </li>
+        <li data-title="Process">
+          <div class="thumbnail-overlay"><p>Number of Processes</p></div>
+          <img src="" alt="Number of Processes Chart" data-for="Process" />
+        </li>
+        <li data-title="Users">
+          <div class="thumbnail-overlay"><p>Number of Active Users</p></div>
+          <img src="" alt="Number of Active Users Chart" data-for="Users" />
+        </li>
+      </ul>
+    </main>
+    <footer>Made by B4D13, All rights reserved &copy;</footer>
+    <script>
+      // Set the main chart title according to what's currently selected
+      let titles = {
+        CPU: "CPU Usage",
+        RAM: "RAM Usage",
+        Disk: "Available Disk Space",
+        Process: "Number of Processes",
+        Users: "Number of Active Users",
+      };
+      let stats;
+      function update_stats() {
+        // Update the content of the stats
+        let avgSpan = document.querySelector(".avg").nextSibling;
+        let maxSpan = document.querySelector(".max").nextSibling;
+        let minSpan = document.querySelector(".min").nextSibling;
+        let periodSpan = document.querySelector(".period").nextSibling;
+        let title = document.querySelector(".main-chart img").dataset.for;
+        let suffix = ["CPU", "RAM"].includes(title)
+          ? "%"
+          : title == "Disk"
+          ? "GB"
+          : "";
+        avgSpan.textContent = stats[title]["avg"] + suffix;
+        maxSpan.textContent = stats[title]["max"] + suffix;
+        minSpan.textContent = stats[title]["min"] + suffix;
+        periodSpan.textContent = 'Last ' + stats['window_size'] + ' min'
+      }
+      // Load the selected thumbnail in the main chart
+      let thumbnails = document.querySelector(".thumbnails");
+      thumbnails.addEventListener("click", (event) => {
+        let li = event.target.closest("li");
+        if (!li) {
+          return;
+        }
+        if (li.classList.contains("selected")) {
+          return;
+        }
+        // Load the actual svg image
+        let mainChartImg = document.querySelector(".main-chart > img");
+        mainChartImg.src = li.querySelector("img").src;
+        // Update the data label with the right value
+        mainChartImg.dataset.for = li.dataset.title;
+        // Remove selected styling from all thumbnails
+        let lis = thumbnails.getElementsByTagName("li");
+        for (l of lis) {
+          l.classList.remove("selected");
+        }
+        // Add selected styling to the selectedd thumbnail
+        li.classList.add("selected");
+        let mainChartTitle = document.querySelector(".main-chart h1");
+        // Load the right chart main title
+        mainChartTitle.textContent = titles[li.dataset.title];
+        // Update the stats
+        update_stats();
+      });
+      //   Function to dynamically fetch the images and the statistics from the server
+      function fetchData() {
+        // Fetch the charts (the svg files)
+        fetch("/get_charts")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("/get_charts response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Update the content of the images
+            chartImages = document.querySelectorAll("img");
+            for (img of chartImages) {
+              let filename = data.find((element) =>
+                element.startsWith(img.dataset.for)
+              );
+              let src = `{{url_for('static', filename='charts')}}`;
+              src += "/" + filename;
+              img.src = src;
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching charts:", error);
+          });
+        //  Fetch the statistics (avg, max, min)
+        fetch("/get_stats")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("/get_stats response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            stats = data;
+            update_stats();
+          })
+          .catch((error) => {
+            console.error("Error fetching data:", error);
+          });
+      }
+
+      //   Function to dynamically fetch the latest CERT alert from the server
+      function fetchLatestAlert() {
+        fetch("/get_latest_alert")
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error("/get_latest_alert response was not ok");
+            }
+            return response.json();
+          })
+          .then((data) => {
+            data = JSON.parse(data);
+            let alert = document.querySelector(".alert");
+            alert.querySelector("span").nextElementSibling.textContent =
+              "(" + data["date"] + ")";
+            alertA = alert.querySelector("a");
+            alertA.href = data["url"];
+            alertA.textContent = data["title"];
+          })
+          .catch((error) => {
+            console.error("Error fetching latest alert:", error);
+          });
+      }
+
+      // Call fetchData initially and then every 1 minute
+      document.addEventListener("DOMContentLoaded", function () {
+        fetchData();
+        fetchLatestAlert();
+        setInterval(fetchData, 60000);
+        setInterval(fetchLatestAlert, 60000 * 60 * 24);
+      });
+
+      // Change settings event listener
+      updateSettingsBtn = document.querySelector(".main-chart button");
+      updateSettingsBtn.addEventListener("click", () => {
+        overlay = document.querySelector(".overlay");
+        overlay.classList.add("visible-opaque");
+        updateSettings = document.querySelector(".update-settings");
+        updateSettings.classList.add("visible");
+      });
+
+      exitBtn = document.querySelector(".update-settings .exit");
+      exitBtn.addEventListener("click", () => {
+        overlay = document.querySelector(".overlay");
+        overlay.classList.remove("visible-opaque");
+        updateSettings = document.querySelector(".update-settings");
+        updateSettings.classList.remove("visible");
+      });
+
+      overlay = document.querySelector(".overlay");
+      overlay.addEventListener("click", (event) => {
+        event.target.classList.remove("visible-opaque");
+        updateSettings = document.querySelector(".update-settings");
+        updateSettings.classList.remove("visible");
+      });
+    </script>
+  </body>
+</html>
